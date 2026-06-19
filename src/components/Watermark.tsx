@@ -1,56 +1,154 @@
 import { useMemo } from 'react';
 
-function escXml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function escXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-function tileSVG(texts: { t: string; x: number; y: number }[], w: number, h: number, fs: number, op: number): string {
-  const els = texts.map(t =>
-    `<text x="${t.x}" y="${t.y}" transform="rotate(-30, ${t.x}, ${t.y})" font-family="'Inter',sans-serif" font-size="${fs}" font-weight="700" fill="currentColor" fill-opacity="${op}" text-anchor="middle" dominant-baseline="middle">${escXml(t.t)}</text>`
-  ).join('');
-  return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${els}</svg>`)}`;
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 9999.91) * 10000;
+  return x - Math.floor(x);
 }
 
-const LAYER_CANKAO = {
-  texts: [
-    { t: '仅供参考', x: 50, y: 30 }, { t: '仅供参考', x: 150, y: 110 },
-    { t: '仅供参考', x: -30, y: 190 }, { t: '仅供参考', x: 230, y: 270 },
-  ],
-  w: 200, h: 200, fs: 18, op: 0.06, cls: '',
-};
+function svgText(
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  opacity: number,
+  rotate: number,
+  weight = 600,
+) {
+  return `
+    <text
+      x="${x}"
+      y="${y}"
+      transform="rotate(${rotate} ${x} ${y})"
+      font-family="Inter,Segoe UI,sans-serif"
+      font-size="${size}"
+      font-weight="${weight}"
+      fill="#364953ff"
+      fill-opacity="${opacity}"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >
+      ${escXml(text)}
+    </text>
+  `;
+}
 
-const LAYER_USER = {
-  texts: [
-    { t: '@baiyao105', x: 100, y: 100 },
-  ],
-  w: 400, h: 400, fs: 14, op: 0.04, cls: 'wm-sparse',
-};
+function createWatermarkSvg(bindCode?: string) {
+  const width = 1800;
+  const height = 1400;
 
-function bindLayer(code: string) {
-  return {
-    texts: [
-      { t: code, x: 140, y: 50 },
-      { t: code, x: 140, y: 170 },
-      { t: code, x: 140, y: 290 },
-    ],
-    w: 300, h: 400, fs: 16, op: 0.05, cls: 'wm-bind',
+  const elements: string[] = [];
+
+  let seed = 1;
+
+  const jitter = (
+    baseX: number,
+    baseY: number,
+    xRange: number,
+    yRange: number,
+  ) => {
+    const dx = (seededRandom(seed++) - 0.5) * xRange;
+    const dy = (seededRandom(seed++) - 0.5) * yRange;
+
+    return {
+      x: baseX + dx,
+      y: baseY + dy,
+    };
   };
+  for (let y = -100; y < height + 200; y += 140) {
+    for (let x = -100; x < width + 200; x += 130) {
+      const p = jitter(x, y, 50, 40);
+
+      elements.push(
+        svgText(
+          '仅供参考',
+          p.x,
+          p.y,
+          18 + seededRandom(seed++) * 3,
+          0.05 + seededRandom(seed++) * 0.03,
+          -25 - seededRandom(seed++) * 10,
+          700,
+        ),
+      );
+    }
+  }
+  if (bindCode?.trim()) {
+    const code = bindCode.trim().slice(0, 64);
+
+    for (let y = -50; y < height + 200; y += 140) {
+      for (let x = 50; x < width + 200; x += 160) {
+        const p = jitter(x, y, 80, 60);
+
+        elements.push(
+          svgText(
+            code,
+            p.x,
+            p.y,
+            15 + seededRandom(seed++) * 2,
+            0.045 + seededRandom(seed++) * 0.02,
+            -25 - seededRandom(seed++) * 10,
+          ),
+        );
+      }
+    }
+  }
+  for (let y = 0; y < height + 300; y += 230) {
+    for (let x = 100; x < width + 300; x += 270) {
+      const p = jitter(x, y, 100, 80);
+
+      elements.push(
+        svgText(
+          '@baiyao105',
+          p.x,
+          p.y,
+          14 + seededRandom(seed++) * 2,
+          0.04 + seededRandom(seed++) * 0.015,
+          -25 - seededRandom(seed++) * 10,
+        ),
+      );
+    }
+  }
+
+  const svg = `
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="${width}"
+      height="${height}"
+      viewBox="0 0 ${width} ${height}"
+    >
+      ${elements.join('')}
+    </svg>
+  `;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export function Watermark({ bindCode }: { bindCode?: string }) {
-  const bgCankao = useMemo(() => tileSVG(LAYER_CANKAO.texts, LAYER_CANKAO.w, LAYER_CANKAO.h, LAYER_CANKAO.fs, LAYER_CANKAO.op), []);
-  const bgUser = useMemo(() => tileSVG(LAYER_USER.texts, LAYER_USER.w, LAYER_USER.h, LAYER_USER.fs, LAYER_USER.op), []);
-  const bgBind = useMemo(() => {
-    if (!bindCode) return '';
-    const l = bindLayer(bindCode);
-    return tileSVG(l.texts, l.w, l.h, l.fs, l.op);
-  }, [bindCode]);
+export function Watermark({
+  bindCode,
+}: {
+  bindCode?: string;
+}) {
+  const backgroundImage = useMemo(
+    () => createWatermarkSvg(bindCode),
+    [bindCode],
+  );
 
   return (
-    <>
-      <div className="watermark" style={{ backgroundImage: `url("${bgCankao}")`, backgroundSize: `${LAYER_CANKAO.w}px ${LAYER_CANKAO.h}px` }} />
-      <div className={`watermark ${LAYER_USER.cls}`} style={{ backgroundImage: `url("${bgUser}")`, backgroundSize: `${LAYER_USER.w}px ${LAYER_USER.h}px` }} />
-      {bgBind && <div className={`watermark ${bindLayer('').cls}`} style={{ backgroundImage: `url("${bgBind}")`, backgroundSize: `${bindLayer('').w}px ${bindLayer('').h}px` }} />}
-    </>
+    <div
+      className="watermark"
+      aria-hidden
+      style={{
+        backgroundImage: `url("${backgroundImage}")`,
+        backgroundRepeat: 'repeat',
+        backgroundSize: '1800px 1400px',
+      }}
+    />
   );
 }

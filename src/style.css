@@ -238,8 +238,8 @@ body {
 }
 .field:hover { background: var(--surface-hover); }
 .watermark {
-  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
-  background-repeat: repeat;
+  position: fixed; inset: 0; pointer-events: none; user-select: none; z-index: 9999;
+  color: currentColor; mask-image: none; -webkit-mask-image: none;
 }
 .wm-sparse { z-index: 9997; }
 .wm-bind { z-index: 9996; }
