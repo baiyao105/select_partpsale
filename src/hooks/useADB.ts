@@ -1,5 +1,9 @@
 import { useState, useCallback } from 'react';
 
+function decode(data: DataView | undefined): string {
+  return data ? new TextDecoder().decode(data) : '';
+}
+
 export function useADB() {
   const [error, setError] = useState<string | null>(null);
 
@@ -9,27 +13,24 @@ export function useADB() {
       return null;
     }
     try {
-      const dev = await navigator.usb.requestDevice({ filters: [] });
-      await dev.open();
-      if (!dev.configuration) await dev.selectConfiguration(1);
-      await dev.claimInterface(0);
+      const mod: any = await import('webadb');
+      const Adb = mod.default || mod;
 
-      const enc = new TextEncoder();
-      const dec = new TextDecoder();
-      await dev.transferOut(1, enc.encode('getprop ro.boot.bindnumber\n'));
+      const transport = await Adb.WebUSB.Transport.open();
+      const device = await transport.connectAdb('host::');
+      const stream = await device.shell('getprop ro.boot.bindnumber');
 
-      let res = '';
-      while (true) {
-        const r = await dev.transferIn(1, 4096);
-        if (r.status !== 'ok') break;
-        const chunk = dec.decode(r.data);
-        res += chunk;
-        if (chunk.includes('\nOK') || chunk.includes('\nERROR')) break;
+      let result = '';
+      let resp = await stream.receive();
+
+      while (resp.cmd === 'WRTE') {
+        await stream.send('OKAY');
+        result += decode(resp.data);
+        resp = await stream.receive();
       }
 
-      const match = res.match(/\[(.*?)\]/);
-      const val = match ? match[1] : res.trim();
-      await dev.close();
+      const match = result.match(/\[(.*?)\]/);
+      const val = match ? match[1] : result.trim();
 
       if (val && !val.includes('ERROR')) {
         setError(null);

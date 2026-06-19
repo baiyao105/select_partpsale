@@ -25,7 +25,7 @@ export default function App() {
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
   const { theme, effective, cycleTheme } = useTheme();
-  const { adbRead } = useADB();
+  const { adbRead, error: adbError } = useADB();
   const { history, add: addHistory, remove: removeHistory, clearAll: clearHistory } = useHistory();
 
   const { data: queryData, isLoading, isError, error } = useQuery({
@@ -46,6 +46,7 @@ export default function App() {
   }, []);
 
   useEffect(() => { if (isLoading) setStatus('查询中...', 'info'); }, [isLoading, setStatus]);
+  useEffect(() => { if (adbError) setStatus(adbError, 'err'); }, [adbError, setStatus]);
   useEffect(() => { if (isError) setStatus(error instanceof Error ? error.message : '查询失败', 'err'); }, [isError, error, setStatus]);
   useEffect(() => {
     if (queryData && !isLoading && !isError) {

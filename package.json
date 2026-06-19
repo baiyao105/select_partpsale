@@ -14,7 +14,8 @@
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.21.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "webadb": "^1.0.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
