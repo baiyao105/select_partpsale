@@ -13,6 +13,7 @@ declare module 'html5-qrcode' {
     stop(): Promise<void>;
     isScanning: boolean;
     clear(): void;
+    scanFile(file: File, showImage?: boolean): Promise<string>;
   }
 }
 

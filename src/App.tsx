@@ -13,6 +13,7 @@ import { Toast } from './components/Toast';
 import { ScannerModal } from './components/ScannerModal';
 import { ResultGroups } from './components/ResultGroups';
 import { HistoryPanel } from './components/HistoryPanel';
+import { Watermark } from './components/Watermark';
 
 export default function App() {
   const [input, setInput] = useState('');
@@ -103,6 +104,7 @@ export default function App() {
       </div>
       <Toast message={toastMsg} type={toastType} onDone={clearToast} />
       <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleScanResult} onError={handleScanError} />
+      <Watermark bindCode={queryCode || undefined} />
     </div>
   );
 }
