@@ -20,6 +20,14 @@ export async function startScanner(
 
 export async function scanFile(file: File): Promise<string> {
   const { Html5Qrcode } = await import('html5-qrcode');
-  const reader = new Html5Qrcode('dummy');
-  return reader.scanFile(file, false);
+  const el = document.createElement('div');
+  el.id = '_qr_tmp_' + Date.now();
+  el.style.display = 'none';
+  document.body.appendChild(el);
+  try {
+    const reader = new Html5Qrcode(el.id);
+    return await reader.scanFile(file, false);
+  } finally {
+    document.body.removeChild(el);
+  }
 }
