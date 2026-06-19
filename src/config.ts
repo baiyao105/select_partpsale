@@ -1,0 +1,64 @@
+import type { FieldGroup } from './types';
+
+export const CFG = {
+  API: 'https://scrm.okii.com/commonproductcode/psaleimei/selectPartPsaleImei',
+  APP_ID: 'wx6c79ad366bdf6aa1',
+  UNION_ID: 'oj4yJ1W5Je3p0ZRSgbLCBXp9pXrk',
+  OPEN_ID: 'ofJpw5CKmCJXDyi_md6oWKyhZJ_8',
+  SKIP: new Set([
+    'scrmShopId', 'scrmPublicShopId', 'scrmShopCode',
+    'scrmSecondAgentId', '出货代理ID', '机型ID', '样机时间'
+  ]),
+  TIMEOUT: 15000,
+};
+
+export const GROUPS: FieldGroup[] = [
+  {
+    id: 'basic', title: '基础信息', color: 'blue',
+    icon: 'Hash',
+    keys: ['串码', 'barcode', 'imei', 'meid', '绑定号'],
+  },
+  {
+    id: 'device', title: '设备信息', color: 'green',
+    icon: 'Smartphone',
+    keys: [
+      '机型', '颜色', 'makeColor', '颜色编码', '品牌', '品类', '描述',
+      'erp对外机型', 'makeCertifiedmodel', 'makeSalename', 'frequency',
+      'makeNetinnumber', 'makeCmiitnum', 'makeCommoditycode', '生产时间',
+    ],
+  },
+  {
+    id: 'sales', title: '销售信息', color: 'orange',
+    icon: 'ShoppingBag',
+    keys: [
+      '出货代理', '出货代理编码', '生产出货状态', '参考销售信息地区', '城市',
+      '顾客名', '电话', '售点', '售点二代', '最后库存售点', '库存二代',
+      '电商类型', 'thirdShopName', 'thirdSecondAgent', 'scrmShopType', '实销机型',
+    ],
+  },
+  {
+    id: 'status', title: '状态信息', color: 'purple',
+    icon: 'Clock',
+    keys: ['串码当前状态', '样机状态', '寄存状态', '退厂时间'],
+  },
+];
+
+export const LABELS: Record<string, string> = {
+  串码: '串码', barcode: '条形码(barcode)', imei: 'IMEI', meid: 'MEID',
+  绑定号: '绑定号', 机型: '机型', 颜色: '颜色', makeColor: '颜色描述',
+  颜色编码: '颜色编码', 品牌: '品牌', 品类: '品类', 描述: '描述',
+  'erp对外机型': 'ERP型号', makeCertifiedmodel: '认证型号', makeSalename: '销售名称',
+  frequency: '频段', makeNetinnumber: '入网号码', makeCmiitnum: '许可证号',
+  makeCommoditycode: '商品条码', 生产时间: '生产时间', 生产出货状态: '出货状态',
+  串码当前状态: '当前状态', 样机状态: '样机状态', 寄存状态: '寄存状态',
+  退厂时间: '退厂时间', 出货代理: '出货代理', 出货代理编码: '代理编码',
+  参考销售信息地区: '销售地区', 城市: '城市', 顾客名: '顾客', 电话: '电话',
+  售点: '售点', 售点二代: '二级区域', 最后库存售点: '库存售点',
+  库存二代: '库存区域', 电商类型: '电商类型', thirdShopName: '第三方店铺',
+  thirdSecondAgent: '二级代理', scrmShopType: '店铺类型', 实销机型: '实销机型',
+};
+
+export const HTTP_ERRORS: Record<number, string> = {
+  400: '请求参数错误', 404: '接口不存在', 429: '请求过于频繁',
+  500: '服务器错误', 502: '网关错误', 503: '服务暂不可用', 504: '网关超时',
+};
