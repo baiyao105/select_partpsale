@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/select_partpsale/',
   build: {
     rollupOptions: {
       output: {
