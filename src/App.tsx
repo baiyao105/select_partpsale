@@ -49,12 +49,26 @@ export default function App() {
 
   const mergedData: QueryData | undefined = queryData?.data ? {
     ...queryData.data,
-    ...(insuranceData?.data?.insuranceDTO ? {
-      '激活时间': insuranceData.data.insuranceDTO.activationTime?.split(' ')[0] || null,
-      '保修时间': insuranceData.data.insuranceDTO.startTime?.split(' ')[0] && insuranceData.data.insuranceDTO.endTime?.split(' ')[0]
-        ? `${insuranceData.data.insuranceDTO.startTime.split(' ')[0]}~${insuranceData.data.insuranceDTO.endTime.split(' ')[0]}`
-        : null,
-    } : {}),
+    ...(insuranceData?.data ? (() => {
+      const insuranceDTO = insuranceData.data.insuranceDTO;
+      const activationTime = insuranceDTO?.activationTime || insuranceData.data.activationTime;
+      
+      if (insuranceDTO && insuranceDTO.startTime && insuranceDTO.endTime) {
+        return {
+          '激活时间': insuranceDTO.activationTime?.split(' ')[0] || null,
+          '保修时间': `${insuranceDTO.startTime.split(' ')[0]}~${insuranceDTO.endTime.split(' ')[0]}`,
+        };
+      } else if (activationTime) {
+        const actDate = new Date(activationTime);
+        const expDate = new Date(actDate);
+        expDate.setFullYear(expDate.getFullYear() + 1);
+        return {
+          '激活时间': activationTime.split(' ')[0] || null,
+          '保修时间': `${activationTime.split(' ')[0]}~${expDate.toISOString().split('T')[0]}`,
+        };
+      }
+      return {};
+    })() : {}),
   } : undefined;
 
   const hasResult = !!(mergedData && Object.keys(mergedData).length > 0);
