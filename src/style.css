@@ -23,6 +23,7 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
   --ease: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,6 +81,7 @@ body {
   justify-content: center;
   padding: 20px;
   color: var(--text-1);
+  transition: var(--transition-theme);
 }
 
 #root { width: 100%; display: flex; align-items: center; justify-content: center; }
@@ -96,6 +98,7 @@ body {
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-soft);
   animation: slideUp 0.4s var(--ease);
+  transition: var(--transition-theme);
 }
 
 .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
@@ -183,7 +186,11 @@ body {
 .btn-outline { background: var(--surface-hover); color: var(--text-1); border: 1px solid var(--border-soft); }
 .btn-outline:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 
-.status { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px; font-weight: 500; }
+.status {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px; font-weight: 500;
+  transition: var(--transition-theme);
+}
 .spinner { animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -196,6 +203,20 @@ body {
 [data-theme="dark"] .status.err { background: rgba(255, 107, 107, 0.1); color: #FF6B6B; border-color: rgba(255, 107, 107, 0.2); }
 
 .results.on { border-top: 1px solid var(--border-soft); padding-top: 16px; }
+
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.results-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; color: var(--text-3);
+  background: none; border: none; cursor: pointer;
+  padding: 4px 8px; border-radius: var(--radius-xs);
+  font-family: inherit; transition: all 100ms var(--ease);
+}
+.results-toggle:hover { color: var(--accent); background: var(--accent-soft); }
 
 .expander { border-radius: var(--radius-md); margin-bottom: 10px; background: var(--surface-hover); overflow: hidden; }
 .expander:last-child { margin-bottom: 0; }
@@ -246,12 +267,42 @@ body {
 
 .field:active { background: var(--accent-soft); transform: scale(0.98); }
 
+.field.copied {
+  background: var(--accent-soft) !important;
+  animation: copyHighlight 0.6s ease;
+}
+
+@keyframes copyHighlight {
+  0% { background: var(--accent-medium); }
+  100% { background: var(--surface-hover); }
+}
+
 .field-label {
   font-size: 12px; font-weight: 500; color: var(--accent);
   background: var(--accent-soft); padding: 3px 8px;
   border-radius: 12px; white-space: nowrap; flex-shrink: 0;
 }
 .field-value { font-size: 13px; font-weight: 500; color: var(--text-1); word-break: break-word; text-align: right; flex: 1; }
+.field-value.truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+  position: relative;
+}
+.field-value.truncated:hover::after {
+  content: '点击复制完整内容';
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: var(--text-1);
+  color: var(--surface-card);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 10;
+}
 
 .empty { text-align: center; color: var(--text-3); padding: 24px 12px; font-size: 13px; }
 
@@ -353,7 +404,7 @@ body {
 
 @media (max-width: 480px) {
   body { padding: 12px; align-items: flex-start; padding-top: 24px; }
-  .card { padding: 18px 16px; }
+  .card { padding: 18px 16px; box-shadow: var(--shadow-md); }
   .logo { width: 40px; height: 40px; }
   .logo svg { width: 20px; height: 20px; }
   .title { font-size: 18px; }

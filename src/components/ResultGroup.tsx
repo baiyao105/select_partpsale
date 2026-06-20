@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Hash, Smartphone, ShoppingBag, Clock, Info } from 'lucide-react';
 import { ResultField } from './ResultField';
@@ -16,10 +16,15 @@ interface Props {
   group: FieldGroup;
   data: Record<string, string | null | undefined>;
   onCopy: (text: string) => void;
+  defaultOpen?: boolean;
 }
 
-export function ResultGroup({ group, data, onCopy }: Props) {
-  const [open, setOpen] = useState(true);
+export function ResultGroup({ group, data, onCopy, defaultOpen = true }: Props) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    setOpen(defaultOpen);
+  }, [defaultOpen]);
 
   const items: { key: string; value: string }[] = [];
   for (const key of group.keys) {

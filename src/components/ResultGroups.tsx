@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Info } from 'lucide-react';
+import { ChevronDown, Info, ChevronsUpDown } from 'lucide-react';
 import { ResultGroup } from './ResultGroup';
 import { ResultField } from './ResultField';
 import { GROUPS } from '../config';
@@ -48,6 +48,8 @@ function ExtraSection({ extra, onCopy }: { extra: [string, string | null | undef
 }
 
 export function ResultGroups({ data, onCopy }: Props) {
+  const [allExpanded, setAllExpanded] = useState(true);
+
   const entries = Object.entries(data);
   if (entries.length === 0) return <div className="empty">返回数据为空</div>;
 
@@ -56,8 +58,17 @@ export function ResultGroups({ data, onCopy }: Props) {
 
   return (
     <motion.div className="results on" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+      <div className="results-header">
+        <button 
+          className="results-toggle" 
+          onClick={() => setAllExpanded(!allExpanded)}
+        >
+          <ChevronsUpDown size={14} />
+          {allExpanded ? '全部收起' : '全部展开'}
+        </button>
+      </div>
       {GROUPS.map((group) => (
-        <ResultGroup key={group.id} group={group} data={data} onCopy={onCopy} />
+        <ResultGroup key={group.id} group={group} data={data} onCopy={onCopy} defaultOpen={allExpanded} />
       ))}
       {extra.length > 0 && <ExtraSection extra={extra} onCopy={onCopy} />}
     </motion.div>
