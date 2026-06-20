@@ -115,10 +115,15 @@ body {
 
 .sidebar { width: 100%; }
 .main-content { display: none; }
+.mobile-results { display: block; }
 
 @media (min-width: 1024px) {
   .sidebar {
     transition: all 0.4s var(--ease);
+  }
+  
+  .mobile-results {
+    display: none;
   }
   
   .main-content {
@@ -549,4 +554,5 @@ body {
   .title { font-size: 18px; }
   .btn-row { grid-template-columns: 1fr; }
   .main-content { display: none !important; }
+  .mobile-results { display: block !important; }
 }

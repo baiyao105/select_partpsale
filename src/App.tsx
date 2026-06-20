@@ -102,6 +102,9 @@ export default function App() {
           <ActionButtons loading={isLoading} onQuery={handleQuery} onScan={() => setScannerOpen(true)} onADB={handleADB} />
           <HistoryPanel history={history} onSelect={(code) => { setInput(code); doQuery(code); }} onRemove={removeHistory} onClearAll={clearHistory} />
           <StatusBar visible={statusVisible} loading={isLoading} text={statusText} type={statusType} />
+          <div className="mobile-results">
+            {queryData?.data && <ResultGroups data={queryData.data} onCopy={handleCopy} />}
+          </div>
           <div className="footer">串码查询工具</div>
         </div>
       </div>
