@@ -17,14 +17,21 @@ interface Props {
   data: Record<string, string | null | undefined>;
   onCopy: (text: string) => void;
   defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
 }
 
-export function ResultGroup({ group, data, onCopy, defaultOpen = true }: Props) {
+export function ResultGroup({ group, data, onCopy, defaultOpen = true, onToggle }: Props) {
   const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => {
     setOpen(defaultOpen);
   }, [defaultOpen]);
+
+  const handleToggle = () => {
+    const newOpen = !open;
+    setOpen(newOpen);
+    onToggle?.(newOpen);
+  };
 
   const items: { key: string; value: string }[] = [];
   for (const key of group.keys) {
@@ -38,13 +45,13 @@ export function ResultGroup({ group, data, onCopy, defaultOpen = true }: Props) 
 
   return (
     <div className={`expander ${open ? 'open' : ''}`}>
-      <div className="expander-head" onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setOpen(!open); }}>
+      <div className="expander-head" onClick={handleToggle} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') handleToggle(); }}>
         <div className={`expander-icon ${group.color}`}>{ICON_MAP[group.icon] || <Info size={16} />}</div>
         <div className="expander-text">
           <div className="expander-title">{group.title}</div>
           <div className="expander-count">{items.length} 项</div>
         </div>
-        <motion.div className="expander-arrow" animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+        <motion.div className="expander-arrow" animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3 }}>
           <ChevronDown size={14} />
         </motion.div>
       </div>
@@ -55,7 +62,7 @@ export function ResultGroup({ group, data, onCopy, defaultOpen = true }: Props) 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.35 }}
           >
             <div className="expander-content">
               {items.map((item) => (

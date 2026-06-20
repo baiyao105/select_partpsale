@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Info, ChevronsUpDown } from 'lucide-react';
 import { ResultGroup } from './ResultGroup';
@@ -11,12 +11,23 @@ interface Props {
   onCopy: (text: string) => void;
 }
 
-function ExtraSection({ extra, onCopy }: { extra: [string, string | null | undefined][]; onCopy: (text: string) => void }) {
-  const [open, setOpen] = useState(false);
+function ExtraSection({ extra, onCopy, defaultOpen, onToggle }: { 
+  extra: [string, string | null | undefined][]; 
+  onCopy: (text: string) => void;
+  defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
+}) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+
+  const handleToggle = () => {
+    const newOpen = !open;
+    setOpen(newOpen);
+    onToggle?.(newOpen);
+  };
 
   return (
     <div className={`expander extra-section ${open ? 'open' : ''}`}>
-      <div className="expander-head" onClick={() => setOpen(!open)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setOpen(!open); }}>
+      <div className="expander-head" onClick={handleToggle} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') handleToggle(); }}>
         <div className="expander-icon gray"><Info size={16} /></div>
         <div className="expander-text">
           <div className="expander-title">扩展信息</div>
@@ -56,21 +67,44 @@ export function ResultGroups({ data, onCopy }: Props) {
   const defined = new Set(GROUPS.flatMap((g) => g.keys));
   const extra = entries.filter(([key]) => !defined.has(key));
 
+  const handleGroupToggle = useCallback((_groupId: string, _open: boolean) => {
+    // Individual group state tracking (reserved for future use)
+  }, []);
+
+  const handleToggleAll = () => {
+    const newAllExpanded = !allExpanded;
+    setAllExpanded(newAllExpanded);
+  };
+
   return (
     <motion.div className="results on" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
       <div className="results-header">
         <button 
           className="results-toggle" 
-          onClick={() => setAllExpanded(!allExpanded)}
+          onClick={handleToggleAll}
         >
           <ChevronsUpDown size={14} />
           {allExpanded ? '全部收起' : '全部展开'}
         </button>
       </div>
       {GROUPS.map((group) => (
-        <ResultGroup key={group.id} group={group} data={data} onCopy={onCopy} defaultOpen={allExpanded} />
+        <ResultGroup 
+          key={group.id} 
+          group={group} 
+          data={data} 
+          onCopy={onCopy} 
+          defaultOpen={allExpanded}
+          onToggle={(open) => handleGroupToggle(group.id, open)}
+        />
       ))}
-      {extra.length > 0 && <ExtraSection extra={extra} onCopy={onCopy} />}
+      {extra.length > 0 && (
+        <ExtraSection 
+          extra={extra} 
+          onCopy={onCopy} 
+          defaultOpen={allExpanded}
+          onToggle={(open) => handleGroupToggle('extra', open)}
+        />
+      )}
     </motion.div>
   );
 }
