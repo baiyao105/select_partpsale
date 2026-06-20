@@ -25,6 +25,7 @@ export default function App() {
   const [statusType, setStatusType] = useState<'info' | 'ok' | 'err'>('info');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const [hideEmpty, setHideEmpty] = useState(false);
 
   const { theme, effective, cycleTheme } = useTheme();
   const { adbRead, error: adbError } = useADB();
@@ -122,13 +123,13 @@ export default function App() {
           <HistoryPanel history={history} onSelect={(code) => { setInput(code); doQuery(code); }} onRemove={removeHistory} onClearAll={clearHistory} />
           <StatusBar visible={statusVisible} loading={isLoading} text={statusText} type={statusType} />
           <div className="mobile-results">
-            {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} />}
+            {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} hideEmpty={hideEmpty} onToggleHideEmpty={() => setHideEmpty(!hideEmpty)} />}
           </div>
           <div className="footer">串码查询工具</div>
         </div>
       </div>
       <div className="main-content">
-        {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} />}
+        {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} hideEmpty={hideEmpty} onToggleHideEmpty={() => setHideEmpty(!hideEmpty)} />}
       </div>
       <Toast message={toastMsg} type={toastType} onDone={clearToast} />
       <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleScanResult} onError={handleScanError} />

@@ -17,10 +17,10 @@ interface Props {
   data: Record<string, string | null | undefined>;
   onCopy: (text: string) => void;
   defaultOpen?: boolean;
-  onToggle?: (open: boolean) => void;
+  hideEmpty?: boolean;
 }
 
-export function ResultGroup({ group, data, onCopy, defaultOpen = true, onToggle }: Props) {
+export function ResultGroup({ group, data, onCopy, defaultOpen = true, hideEmpty = false }: Props) {
   const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => {
@@ -28,14 +28,15 @@ export function ResultGroup({ group, data, onCopy, defaultOpen = true, onToggle 
   }, [defaultOpen]);
 
   const handleToggle = () => {
-    const newOpen = !open;
-    setOpen(newOpen);
-    onToggle?.(newOpen);
+    setOpen(!open);
   };
 
   const items: { key: string; value: string }[] = [];
   for (const key of group.keys) {
     const val = data[key];
+    if (hideEmpty) {
+      if (val == null || val === '' || val === 'null') continue;
+    }
     if (!CFG.SKIP.has(key)) {
       items.push({ key, value: val != null && val !== '' ? String(val) : 'null' });
     }
