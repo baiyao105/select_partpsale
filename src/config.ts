@@ -16,7 +16,7 @@ export const GROUPS: FieldGroup[] = [
   {
     id: 'basic', title: '基础信息', color: 'blue',
     icon: 'Hash',
-    keys: ['串码', 'barcode', 'imei', 'meid', '绑定号'],
+    keys: ['串码', 'barcode', 'imei', 'meid', '绑定号', '激活时间', '保修时间'],
   },
   {
     id: 'device', title: '设备信息', color: 'green',
@@ -56,6 +56,7 @@ export const LABELS: Record<string, string> = {
   售点: '售点', 售点二代: '二级区域', 最后库存售点: '库存售点',
   库存二代: '库存区域', 电商类型: '电商类型', thirdShopName: '第三方店铺',
   thirdSecondAgent: '二级代理', scrmShopType: '店铺类型', 实销机型: '实销机型',
+  激活时间: '激活时间', 保修时间: '保修时间',
 };
 
 export const HTTP_ERRORS: Record<number, string> = {

@@ -1,5 +1,5 @@
 import { CFG, HTTP_ERRORS } from './config';
-import type { ApiResponse } from './types';
+import type { ApiResponse, InsuranceResponse } from './types';
 
 export async function queryAPI(q: string): Promise<ApiResponse> {
   const ac = new AbortController();
@@ -16,6 +16,30 @@ export async function queryAPI(q: string): Promise<ApiResponse> {
       throw new Error(HTTP_ERRORS[resp.status] || `HTTP ${resp.status}`);
     }
     return resp.json();
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+export async function queryInsurance(sn: string): Promise<InsuranceResponse | null> {
+  const ac = new AbortController();
+  const id = setTimeout(() => ac.abort(), CFG.TIMEOUT);
+  try {
+    const url = `https://screencard.eebbk.com/apireserve/api/insurance/get?productSn=${sn}&serviceType=EXTEND&appId=${CFG.APP_ID}&unionId=${CFG.UNION_ID}&openId=${CFG.OPEN_ID}`;
+    const resp = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: ac.signal,
+    });
+    if (!resp.ok) {
+      return null;
+    }
+    const data = await resp.json();
+    if (data.code === '000001' && data.data) {
+      return data;
+    }
+    return null;
+  } catch {
+    return null;
   } finally {
     clearTimeout(id);
   }

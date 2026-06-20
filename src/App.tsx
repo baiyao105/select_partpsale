@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Grid3x3 } from 'lucide-react';
-import { queryAPI, extractBindNumber } from './api';
+import { queryAPI, queryInsurance, extractBindNumber } from './api';
 import { useTheme } from './hooks/useTheme';
 import { useADB } from './hooks/useADB';
 import { useHistory } from './hooks/useHistory';
@@ -14,6 +14,7 @@ import { ScannerModal } from './components/ScannerModal';
 import { ResultGroups } from './components/ResultGroups';
 import { HistoryPanel } from './components/HistoryPanel';
 import { Watermark } from './components/Watermark';
+import type { QueryData } from './types';
 
 export default function App() {
   const [input, setInput] = useState('');
@@ -37,7 +38,25 @@ export default function App() {
     gcTime: 0,
   });
 
-  const hasResult = !!(queryData?.data && Object.keys(queryData.data).length > 0);
+  const { data: insuranceData } = useQuery({
+    queryKey: ['insurance', queryCode],
+    queryFn: () => queryInsurance(queryCode!),
+    enabled: !!queryCode,
+    retry: false,
+    gcTime: 0,
+  });
+
+  const mergedData: QueryData | undefined = queryData?.data ? {
+    ...queryData.data,
+    ...(insuranceData?.data?.insuranceDTO ? {
+      '激活时间': insuranceData.data.insuranceDTO.activationTime?.split(' ')[0] || null,
+      '保修时间': insuranceData.data.insuranceDTO.startTime?.split(' ')[0] && insuranceData.data.insuranceDTO.endTime?.split(' ')[0]
+        ? `${insuranceData.data.insuranceDTO.startTime.split(' ')[0]}~${insuranceData.data.insuranceDTO.endTime.split(' ')[0]}`
+        : null,
+    } : {}),
+  } : undefined;
+
+  const hasResult = !!(mergedData && Object.keys(mergedData).length > 0);
 
   const setToast = useCallback((text: string, type: 'success' | 'error' = 'success') => {
     setToastMsg(text); setToastType(type);
@@ -103,13 +122,13 @@ export default function App() {
           <HistoryPanel history={history} onSelect={(code) => { setInput(code); doQuery(code); }} onRemove={removeHistory} onClearAll={clearHistory} />
           <StatusBar visible={statusVisible} loading={isLoading} text={statusText} type={statusType} />
           <div className="mobile-results">
-            {queryData?.data && <ResultGroups data={queryData.data} onCopy={handleCopy} />}
+            {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} />}
           </div>
           <div className="footer">串码查询工具</div>
         </div>
       </div>
       <div className="main-content">
-        {queryData?.data && <ResultGroups data={queryData.data} onCopy={handleCopy} />}
+        {mergedData && <ResultGroups data={mergedData} onCopy={handleCopy} />}
       </div>
       <Toast message={toastMsg} type={toastType} onDone={clearToast} />
       <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleScanResult} onError={handleScanError} />
