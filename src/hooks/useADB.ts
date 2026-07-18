@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 function decode(data: DataView | undefined): string {
-  return data ? new TextDecoder().decode(data) : '';
+  return data ? new TextDecoder().decode(data) : "";
 }
 
 export function useADB() {
@@ -9,22 +9,22 @@ export function useADB() {
 
   const adbRead = useCallback(async (): Promise<string | null> => {
     if (!navigator.usb) {
-      setError('浏览器不支持WebUSB');
+      setError("浏览器不支持WebUSB");
       return null;
     }
     try {
-      const mod: any = await import('webadb');
+      const mod: any = await import("webadb");
       const Adb = mod.default || mod;
 
       const transport = await Adb.WebUSB.Transport.open();
-      const device = await transport.connectAdb('host::');
-      const stream = await device.shell('getprop ro.boot.bindnumber');
+      const device = await transport.connectAdb("host::");
+      const stream = await device.shell("getprop ro.boot.bindnumber");
 
-      let result = '';
+      let result = "";
       let resp = await stream.receive();
 
-      while (resp.cmd === 'WRTE') {
-        await stream.send('OKAY');
+      while (resp.cmd === "WRTE") {
+        await stream.send("OKAY");
         result += decode(resp.data);
         resp = await stream.receive();
       }
@@ -32,15 +32,15 @@ export function useADB() {
       const match = result.match(/\[(.*?)\]/);
       const val = match ? match[1] : result.trim();
 
-      if (val && !val.includes('ERROR')) {
+      if (val && !val.includes("ERROR")) {
         setError(null);
         return val;
       }
-      setError('未找到绑定号');
+      setError("未找到绑定号");
       return null;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'ADB错误';
-      if (err instanceof Error && err.name !== 'NotFoundError') setError(msg);
+      const msg = err instanceof Error ? err.message : "ADB错误";
+      if (err instanceof Error && err.name !== "NotFoundError") setError(msg);
       return null;
     }
   }, []);

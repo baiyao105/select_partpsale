@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 function escXml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function seededRandom(seed: number): number {
@@ -68,7 +68,7 @@ function createWatermarkSvg(bindCode?: string) {
 
       elements.push(
         svgText(
-          '仅供参考',
+          "仅供参考",
           p.x,
           p.y,
           18 + seededRandom(seed++) * 3,
@@ -105,7 +105,7 @@ function createWatermarkSvg(bindCode?: string) {
 
       elements.push(
         svgText(
-          '@baiyao105',
+          "@baiyao105",
           p.x,
           p.y,
           14 + seededRandom(seed++) * 2,
@@ -123,18 +123,14 @@ function createWatermarkSvg(bindCode?: string) {
       height="${height}"
       viewBox="0 0 ${width} ${height}"
     >
-      ${elements.join('')}
+      ${elements.join("")}
     </svg>
   `;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export function Watermark({
-  bindCode,
-}: {
-  bindCode?: string;
-}) {
+export function Watermark({ bindCode }: { bindCode?: string }) {
   const backgroundImage = useMemo(
     () => createWatermarkSvg(bindCode),
     [bindCode],
@@ -146,8 +142,8 @@ export function Watermark({
       aria-hidden
       style={{
         backgroundImage: `url("${backgroundImage}")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: '1800px 1400px',
+        backgroundRepeat: "repeat",
+        backgroundSize: "1800px 1400px",
       }}
     />
   );

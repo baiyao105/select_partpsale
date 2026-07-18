@@ -1,0 +1,47 @@
+export interface DeviceInfo {
+  串码: string | null;
+  barcode: string | null;
+  imei: string | null;
+  meid: string | null;
+  绑定号: string | null;
+  机型: string | null;
+  颜色: string | null;
+  makeColor: string | null;
+  颜色编码: string | null;
+  品牌: string | null;
+  品类: string | null;
+  描述: string | null;
+  erp对外机型: string | null;
+  makeCertifiedmodel: string | null;
+  makeSalename: string | null;
+  frequency: string | null;
+  makeNetinnumber: string | null;
+  makeCmiitnum: string | null;
+  makeCommoditycode: string | null;
+  生产时间: string | null;
+  出货代理: string | null;
+  出货代理编码: string | null;
+  生产出货状态: string | null;
+  参考销售信息地区: string | null;
+  城市: string | null;
+  顾客名: string | null;
+  电话: string | null;
+  售点: string | null;
+  售点二代: string | null;
+  最后库存售点: string | null;
+  库存二代: string | null;
+  电商类型: string | null;
+  thirdShopName: string | null;
+  thirdSecondAgent: string | null;
+  scrmShopType: string | null;
+  实销机型: string | null;
+  串码当前状态: string | null;
+  样机状态: string | null;
+  寄存状态: string | null;
+  退厂时间: string | null;
+  激活时间: string | null;
+  保修时间: string | null;
+  [key: string]: string | null | undefined;
+}
+
+export type QueryData = DeviceInfo;

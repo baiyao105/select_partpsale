@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 
 interface Props {
   value: string;
@@ -8,7 +8,13 @@ interface Props {
   onSubmit: () => void;
 }
 
-export function QueryInput({ value, loading, onChange, onClear, onSubmit }: Props) {
+export function QueryInput({
+  value,
+  loading,
+  onChange,
+  onClear,
+  onSubmit,
+}: Props) {
   return (
     <div className="input-wrap">
       <input
@@ -17,7 +23,9 @@ export function QueryInput({ value, loading, onChange, onClear, onSubmit }: Prop
         placeholder="请输入条形码或串码"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter' && !loading) onSubmit(); }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !loading) onSubmit();
+        }}
       />
       {value && (
         <button className="clear-btn" onClick={onClear} title="清空">
