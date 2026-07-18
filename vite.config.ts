@@ -7,7 +7,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.ico", "favicon.png"],
       manifest: {
         name: "串码查询工具",
         short_name: "串码查询",
@@ -19,17 +19,12 @@ export default defineConfig({
         start_url: "/select_partpsale/",
         icons: [
           {
-            src: "pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512.png",
+            src: "favicon.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "pwa-512x512.png",
+            src: "favicon.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any maskable",
