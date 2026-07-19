@@ -55,25 +55,51 @@ export default function App() {
                 insuranceDTO?.activationTime ||
                 insuranceData.data.activationTime;
 
-              if (
-                insuranceDTO &&
-                insuranceDTO.startTime &&
-                insuranceDTO.endTime
-              ) {
-                return {
-                  激活时间: insuranceDTO.activationTime?.split(" ")[0] || null,
-                  保修时间: `${insuranceDTO.startTime.split(" ")[0]}~${insuranceDTO.endTime.split(" ")[0]}`,
-                };
+              const result: Record<string, string | null> = {};
+
+              if (activationTime) {
+                result["激活时间"] = activationTime.split(" ")[0] || null;
+              }
+
+              if (insuranceDTO && insuranceDTO.startTime && insuranceDTO.endTime) {
+                result["保修时间"] = `${insuranceDTO.startTime.split(" ")[0]}~${insuranceDTO.endTime.split(" ")[0]}`;
               } else if (activationTime) {
                 const actDate = new Date(activationTime);
                 const expDate = new Date(actDate);
                 expDate.setFullYear(expDate.getFullYear() + 1);
-                return {
-                  激活时间: activationTime.split(" ")[0] || null,
-                  保修时间: `${activationTime.split(" ")[0]}~${expDate.toISOString().split("T")[0]}`,
-                };
+                result["保修时间"] = `${activationTime.split(" ")[0]}~${expDate.toISOString().split("T")[0]}`;
               }
-              return {};
+
+              if (insuranceData.data.buyStatus) {
+                const statusMap: Record<string, string> = {
+                  "HAS_BUY": "已购买",
+                  "EXPIRE_BUY": "已过期",
+                };
+                result["购买状态"] = statusMap[insuranceData.data.buyStatus] || insuranceData.data.buyStatus;
+              }
+
+              if (insuranceDTO?.insuranceStatus) {
+                const insStatusMap: Record<string, string> = {
+                  "AVAILABLE": "有效",
+                  "EXPIRE": "已过期",
+                  "PENDING": "待生效",
+                };
+                result["保险状态"] = insStatusMap[insuranceDTO.insuranceStatus] || insuranceDTO.insuranceStatus;
+              }
+
+              if (insuranceDTO?.activityName) {
+                result["活动名称"] = insuranceDTO.activityName;
+              }
+
+              if (insuranceData.data.expireDays && insuranceData.data.expireDays > 0) {
+                result["剩余天数"] = `${insuranceData.data.expireDays}天`;
+              }
+
+              if (insuranceData.data.price) {
+                result["延保价格"] = `${insuranceData.data.price}元`;
+              }
+
+              return result;
             })()
           : {}),
       } as QueryData)

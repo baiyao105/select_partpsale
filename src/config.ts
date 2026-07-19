@@ -23,13 +23,20 @@ export const GROUPS: FieldGroup[] = [
     title: "基础信息",
     color: "blue",
     icon: "Hash",
-    keys: ["串码", "barcode", "imei", "meid", "绑定号", "激活时间", "保修时间"],
+    keys: ["串码", "barcode", "imei", "meid", "绑定号"],
+  },
+  {
+    id: "warranty",
+    title: "保修信息",
+    color: "teal",
+    icon: "Shield",
+    keys: ["激活时间", "保修时间", "购买状态", "保险状态", "活动名称", "剩余天数", "延保价格"],
   },
   {
     id: "device",
     title: "设备信息",
     color: "green",
-    icon: "Smartphone",
+    icon: "Watch",
     keys: [
       "机型",
       "颜色",
@@ -124,6 +131,11 @@ export const LABELS: Record<string, string> = {
   实销机型: "实销机型",
   激活时间: "激活时间",
   保修时间: "保修时间",
+  购买状态: "购买状态",
+  保险状态: "保险状态",
+  活动名称: "活动名称",
+  剩余天数: "剩余天数",
+  延保价格: "延保价格",
 };
 
 export const HTTP_ERRORS: Record<number, string> = {

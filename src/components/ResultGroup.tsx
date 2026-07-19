@@ -7,6 +7,8 @@ import {
   ShoppingBag,
   Clock,
   Info,
+  Shield,
+  Watch,
 } from "lucide-react";
 import { ResultField } from "./ResultField";
 import type { FieldGroup } from "../types";
@@ -17,6 +19,8 @@ const ICON_MAP: Record<string, ReactNode> = {
   Smartphone: <Smartphone size={16} />,
   ShoppingBag: <ShoppingBag size={16} />,
   Clock: <Clock size={16} />,
+  Shield: <Shield size={16} />,
+  Watch: <Watch size={16} />,
 };
 
 interface Props {

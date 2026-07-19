@@ -41,6 +41,11 @@ export interface DeviceInfo {
   退厂时间: string | null;
   激活时间: string | null;
   保修时间: string | null;
+  购买状态: string | null;
+  保险状态: string | null;
+  活动名称: string | null;
+  剩余天数: string | null;
+  延保价格: string | null;
   [key: string]: string | null | undefined;
 }
 
