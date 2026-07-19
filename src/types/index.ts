@@ -8,7 +8,7 @@ type DeviceInfoKey = Extract<keyof DeviceInfo, string>;
 export interface FieldGroup {
   id: string;
   title: string;
-  color: "blue" | "green" | "orange" | "purple";
+  color: "blue" | "green" | "orange" | "purple" | "teal";
   icon: string;
   keys: DeviceInfoKey[];
 }
