@@ -29,12 +29,16 @@ export function useTheme() {
     return () => mq.removeEventListener("change", handler);
   }, [theme]);
 
+  const setTheme = useCallback((t: ThemeMode) => {
+    localStorage.setItem("theme", t);
+    setThemeState(t);
+  }, []);
+
   const cycleTheme = useCallback(() => {
     const order: ThemeMode[] = ["light", "dark", "auto"];
     const next = order[(order.indexOf(theme) + 1) % 3];
-    localStorage.setItem("theme", next);
-    setThemeState(next);
-  }, [theme]);
+    setTheme(next);
+  }, [theme, setTheme]);
 
-  return { theme, effective, cycleTheme };
+  return { theme, effective, cycleTheme, setTheme };
 }

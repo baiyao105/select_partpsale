@@ -29,6 +29,7 @@ interface Props {
   onCopy: (text: string) => void;
   defaultOpen?: boolean;
   hideEmpty?: boolean;
+  copyWithLabel?: boolean;
 }
 
 export function ResultGroup({
@@ -37,6 +38,7 @@ export function ResultGroup({
   onCopy,
   defaultOpen = true,
   hideEmpty = false,
+  copyWithLabel = true,
 }: Props) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -106,6 +108,7 @@ export function ResultGroup({
                   fieldKey={item.key}
                   value={item.value}
                   onCopy={onCopy}
+                  copyWithLabel={copyWithLabel}
                 />
               ))}
             </div>

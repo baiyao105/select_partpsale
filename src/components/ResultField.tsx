@@ -5,16 +5,22 @@ interface Props {
   fieldKey: string;
   value: string;
   onCopy: (text: string) => void;
+  copyWithLabel?: boolean;
 }
 
-export function ResultField({ fieldKey, value, onCopy }: Props) {
+export function ResultField({
+  fieldKey,
+  value,
+  onCopy,
+  copyWithLabel = true,
+}: Props) {
   const [copied, setCopied] = useState(false);
   const label = LABELS[fieldKey] || fieldKey;
   const display = String(value ?? "");
   const isTruncated = display.length > 20;
 
   function handleCopy() {
-    const text = `${label}: ${display}`;
+    const text = copyWithLabel ? `${label}: ${display}` : display;
     navigator.clipboard
       .writeText(text)
       .then(() => {

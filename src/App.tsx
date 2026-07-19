@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
-import { Grid3x3 } from "lucide-react";
+import { Grid3x3, Settings as SettingsIcon } from "lucide-react";
 import { extractBindNumber } from "./api";
 import { useDeviceQuery } from "./hooks/useDeviceQuery";
 import { useInsuranceQuery } from "./hooks/useInsuranceQuery";
 import { useTheme } from "./hooks/useTheme";
 import { useADB } from "./hooks/useADB";
 import { useHistory } from "./hooks/useHistory";
-import { ThemeToggle } from "./components/ThemeToggle";
+import { useSettings } from "./hooks/useSettings";
 import { QueryInput } from "./components/QueryInput";
 import { ActionButtons } from "./components/ActionButtons";
 import { StatusBar } from "./components/StatusBar";
@@ -15,6 +15,7 @@ import { ScannerModal } from "./components/ScannerModal";
 import { ResultGroups } from "./components/ResultGroups";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { Watermark } from "./components/Watermark";
+import { SettingsDialog } from "./components/SettingsDialog";
 import type { QueryData } from "./types";
 
 export default function App() {
@@ -27,8 +28,10 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [hideEmpty, setHideEmpty] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const { theme, effective, cycleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { settings, setSettings } = useSettings();
   const { adbRead, error: adbError } = useADB();
   const {
     history,
@@ -61,37 +64,50 @@ export default function App() {
                 result["激活时间"] = activationTime.split(" ")[0] || null;
               }
 
-              if (insuranceDTO && insuranceDTO.startTime && insuranceDTO.endTime) {
-                result["保修时间"] = `${insuranceDTO.startTime.split(" ")[0]}~${insuranceDTO.endTime.split(" ")[0]}`;
+              if (
+                insuranceDTO &&
+                insuranceDTO.startTime &&
+                insuranceDTO.endTime
+              ) {
+                result["保修时间"] =
+                  `${insuranceDTO.startTime.split(" ")[0]}~${insuranceDTO.endTime.split(" ")[0]}`;
               } else if (activationTime) {
                 const actDate = new Date(activationTime);
                 const expDate = new Date(actDate);
                 expDate.setFullYear(expDate.getFullYear() + 1);
-                result["保修时间"] = `${activationTime.split(" ")[0]}~${expDate.toISOString().split("T")[0]}`;
+                result["保修时间"] =
+                  `${activationTime.split(" ")[0]}~${expDate.toISOString().split("T")[0]}`;
               }
 
               if (insuranceData.data.buyStatus) {
                 const statusMap: Record<string, string> = {
-                  "HAS_BUY": "已购买",
-                  "EXPIRE_BUY": "已过期",
+                  HAS_BUY: "已购买",
+                  EXPIRE_BUY: "已过期",
                 };
-                result["购买状态"] = statusMap[insuranceData.data.buyStatus] || insuranceData.data.buyStatus;
+                result["购买状态"] =
+                  statusMap[insuranceData.data.buyStatus] ||
+                  insuranceData.data.buyStatus;
               }
 
               if (insuranceDTO?.insuranceStatus) {
                 const insStatusMap: Record<string, string> = {
-                  "AVAILABLE": "有效",
-                  "EXPIRE": "已过期",
-                  "PENDING": "待生效",
+                  AVAILABLE: "有效",
+                  EXPIRE: "已过期",
+                  PENDING: "待生效",
                 };
-                result["保险状态"] = insStatusMap[insuranceDTO.insuranceStatus] || insuranceDTO.insuranceStatus;
+                result["保险状态"] =
+                  insStatusMap[insuranceDTO.insuranceStatus] ||
+                  insuranceDTO.insuranceStatus;
               }
 
               if (insuranceDTO?.activityName) {
                 result["活动名称"] = insuranceDTO.activityName;
               }
 
-              if (insuranceData.data.expireDays && insuranceData.data.expireDays > 0) {
+              if (
+                insuranceData.data.expireDays &&
+                insuranceData.data.expireDays > 0
+              ) {
                 result["剩余天数"] = `${insuranceData.data.expireDays}天`;
               }
 
@@ -224,11 +240,13 @@ export default function App() {
               </svg>
               <span className="github-tooltip">查看项目仓库</span>
             </a>
-            <ThemeToggle
-              theme={theme}
-              effective={effective}
-              onCycle={cycleTheme}
-            />
+            <button
+              className="settings-btn"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="设置"
+            >
+              <SettingsIcon size={18} />
+            </button>
           </div>
 
           <QueryInput
@@ -266,6 +284,7 @@ export default function App() {
                 onCopy={handleCopy}
                 hideEmpty={hideEmpty}
                 onToggleHideEmpty={() => setHideEmpty(!hideEmpty)}
+                copyWithLabel={settings.copyWithLabel}
               />
             )}
           </div>
@@ -279,6 +298,7 @@ export default function App() {
             onCopy={handleCopy}
             hideEmpty={hideEmpty}
             onToggleHideEmpty={() => setHideEmpty(!hideEmpty)}
+            copyWithLabel={settings.copyWithLabel}
           />
         )}
       </div>
@@ -288,6 +308,14 @@ export default function App() {
         onClose={() => setScannerOpen(false)}
         onScan={handleScanResult}
         onError={handleScanError}
+      />
+      <SettingsDialog
+        open={settingsOpen}
+        theme={theme}
+        settings={settings}
+        onClose={() => setSettingsOpen(false)}
+        onThemeChange={setTheme}
+        onSettingsChange={setSettings}
       />
       <Watermark bindCode={queryCode || undefined} />
     </div>

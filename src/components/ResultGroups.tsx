@@ -11,6 +11,7 @@ interface Props {
   onCopy: (text: string) => void;
   hideEmpty?: boolean;
   onToggleHideEmpty?: () => void;
+  copyWithLabel?: boolean;
 }
 
 function ExtraSection({
@@ -19,12 +20,14 @@ function ExtraSection({
   defaultOpen,
   onToggle,
   hideEmpty,
+  copyWithLabel,
 }: {
   extra: [string, string | null | undefined][];
   onCopy: (text: string) => void;
   defaultOpen?: boolean;
   onToggle?: (open: boolean) => void;
   hideEmpty?: boolean;
+  copyWithLabel?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen ?? false);
 
@@ -82,6 +85,7 @@ function ExtraSection({
                   fieldKey={key}
                   value={val != null && val !== "" ? String(val) : "null"}
                   onCopy={onCopy}
+                  copyWithLabel={copyWithLabel}
                 />
               ))}
             </div>
@@ -97,6 +101,7 @@ export function ResultGroups({
   onCopy,
   hideEmpty = false,
   onToggleHideEmpty,
+  copyWithLabel = true,
 }: Props) {
   const [allExpanded, setAllExpanded] = useState(true);
 
@@ -161,6 +166,7 @@ export function ResultGroups({
             onCopy={onCopy}
             defaultOpen={allExpanded}
             hideEmpty={hideEmpty}
+            copyWithLabel={copyWithLabel}
           />
         ))}
         {extra.length > 0 && (
@@ -169,6 +175,7 @@ export function ResultGroups({
             onCopy={onCopy}
             defaultOpen={allExpanded}
             hideEmpty={hideEmpty}
+            copyWithLabel={copyWithLabel}
           />
         )}
       </div>
