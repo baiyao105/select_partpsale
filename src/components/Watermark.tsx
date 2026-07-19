@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 function escXml(text: string): string {
   return text
@@ -13,6 +13,8 @@ function seededRandom(seed: number): number {
   return x - Math.floor(x);
 }
 
+const FILL = "#e0e0e0";
+
 function svgText(
   text: string,
   x: number,
@@ -20,7 +22,7 @@ function svgText(
   size: number,
   opacity: number,
   rotate: number,
-  weight = 600,
+  weight = 400,
 ) {
   return `
     <text
@@ -30,8 +32,12 @@ function svgText(
       font-family="Inter,Segoe UI,sans-serif"
       font-size="${size}"
       font-weight="${weight}"
-      fill="#364953ff"
+      fill="${FILL}"
       fill-opacity="${opacity}"
+      stroke="${FILL}"
+      stroke-width="0.2"
+      stroke-opacity="${opacity * 0.4}"
+      paint-order="stroke"
       text-anchor="middle"
       dominant-baseline="middle"
     >
@@ -71,10 +77,10 @@ function createWatermarkSvg(bindCode?: string) {
           "仅供参考",
           p.x,
           p.y,
-          18 + seededRandom(seed++) * 3,
-          0.05 + seededRandom(seed++) * 0.03,
+          16 + seededRandom(seed++) * 2,
+          0.035 + seededRandom(seed++) * 0.02,
           -25 - seededRandom(seed++) * 10,
-          700,
+          400,
         ),
       );
     }
@@ -92,7 +98,7 @@ function createWatermarkSvg(bindCode?: string) {
             p.x,
             p.y,
             15 + seededRandom(seed++) * 2,
-            0.045 + seededRandom(seed++) * 0.02,
+            0.03 + seededRandom(seed++) * 0.015,
             -25 - seededRandom(seed++) * 10,
           ),
         );
@@ -109,7 +115,7 @@ function createWatermarkSvg(bindCode?: string) {
           p.x,
           p.y,
           14 + seededRandom(seed++) * 2,
-          0.04 + seededRandom(seed++) * 0.015,
+          0.025 + seededRandom(seed++) * 0.01,
           -25 - seededRandom(seed++) * 10,
         ),
       );
@@ -131,13 +137,66 @@ function createWatermarkSvg(bindCode?: string) {
 }
 
 export function Watermark({ bindCode }: { bindCode?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
   const backgroundImage = useMemo(
     () => createWatermarkSvg(bindCode),
     [bindCode],
   );
 
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const parent = el.parentElement;
+    if (!parent) return;
+
+    const restore = () => {
+      if (!el.parentElement) {
+        parent.appendChild(el);
+      }
+      if (
+        el.style.display === "none" ||
+        getComputedStyle(el).display === "none"
+      ) {
+        el.style.display = "";
+      }
+      if (
+        el.style.visibility === "hidden" ||
+        getComputedStyle(el).visibility === "hidden"
+      ) {
+        el.style.visibility = "";
+      }
+      if (el.style.opacity === "0" || getComputedStyle(el).opacity === "0") {
+        el.style.opacity = "";
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "childList" && m.removedNodes.length > 0) {
+          for (const node of Array.from(m.removedNodes)) {
+            if (node === el) {
+              restore();
+              return;
+            }
+          }
+        }
+        if (m.type === "attributes" && m.target === el) {
+          restore();
+        }
+      }
+    });
+
+    observer.observe(parent, { childList: true, subtree: true });
+    observer.observe(el, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={ref}
       className="watermark"
       aria-hidden
       style={{
