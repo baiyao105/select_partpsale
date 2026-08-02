@@ -2,6 +2,7 @@ import type { FieldGroup } from "./types";
 
 export const CFG = {
   API: "https://scrm.okii.com/commonproductcode/psaleimei/selectPartPsaleImei",
+  INSURANCE_API: "https://screencard.eebbk.com/apireserve/api/insurance/get",
   APP_ID: "wx6c79ad366bdf6aa1",
   UNION_ID: "oj4yJ1W5Je3p0ZRSgbLCBXp9pXrk",
   OPEN_ID: "ofJpw5CKmCJXDyi_md6oWKyhZJ_8",

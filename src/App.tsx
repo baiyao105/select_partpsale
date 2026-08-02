@@ -1,12 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { Grid3x3, Settings as SettingsIcon } from "lucide-react";
 import { extractBindNumber } from "./api";
-import { useDeviceQuery } from "./hooks/useDeviceQuery";
-import { useInsuranceQuery } from "./hooks/useInsuranceQuery";
 import { useTheme } from "./hooks/useTheme";
 import { useADB } from "./hooks/useADB";
 import { useHistory } from "./hooks/useHistory";
 import { useSettings } from "./hooks/useSettings";
+import { usePartPsale } from "./hooks/usePartPsale";
 import { QueryInput } from "./components/QueryInput";
 import { ActionButtons } from "./components/ActionButtons";
 import { StatusBar } from "./components/StatusBar";
@@ -16,7 +15,6 @@ import { ResultGroups } from "./components/ResultGroups";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { Watermark } from "./components/Watermark";
 import { SettingsDialog } from "./components/SettingsDialog";
-import type { QueryData } from "./types";
 
 export default function App() {
   const [input, setInput] = useState("");
@@ -61,85 +59,13 @@ export default function App() {
   }, []);
 
   const {
-    data: queryData,
+    data: queryResult,
     isLoading,
     isError,
     error,
-  } = useDeviceQuery(queryCode);
-  const { data: insuranceData } = useInsuranceQuery(queryCode);
+  } = usePartPsale(queryCode);
 
-  const mergedData: QueryData | undefined = queryData?.data
-    ? ({
-        ...queryData.data,
-        ...(insuranceData?.data
-          ? (() => {
-              const insuranceDTO = insuranceData.data.insuranceDTO;
-              const activationTime =
-                insuranceDTO?.activationTime ||
-                insuranceData.data.activationTime;
-
-              const result: Record<string, string | null> = {};
-
-              if (activationTime) {
-                result["激活时间"] = activationTime.split(" ")[0] || null;
-              }
-
-              if (
-                insuranceDTO &&
-                insuranceDTO.startTime &&
-                insuranceDTO.endTime
-              ) {
-                result["保修时间"] =
-                  `${insuranceDTO.startTime.split(" ")[0]}~${insuranceDTO.endTime.split(" ")[0]}`;
-              } else if (activationTime) {
-                const actDate = new Date(activationTime);
-                const expDate = new Date(actDate);
-                expDate.setFullYear(expDate.getFullYear() + 1);
-                result["保修时间"] =
-                  `${activationTime.split(" ")[0]}~${expDate.toISOString().split("T")[0]}`;
-              }
-
-              if (insuranceData.data.buyStatus) {
-                const statusMap: Record<string, string> = {
-                  HAS_BUY: "已购买",
-                  EXPIRE_BUY: "已过期",
-                };
-                result["购买状态"] =
-                  statusMap[insuranceData.data.buyStatus] ||
-                  insuranceData.data.buyStatus;
-              }
-
-              if (insuranceDTO?.insuranceStatus) {
-                const insStatusMap: Record<string, string> = {
-                  AVAILABLE: "有效",
-                  EXPIRE: "已过期",
-                  PENDING: "待生效",
-                };
-                result["保险状态"] =
-                  insStatusMap[insuranceDTO.insuranceStatus] ||
-                  insuranceDTO.insuranceStatus;
-              }
-
-              if (insuranceDTO?.activityName) {
-                result["活动名称"] = insuranceDTO.activityName;
-              }
-
-              if (
-                insuranceData.data.expireDays &&
-                insuranceData.data.expireDays > 0
-              ) {
-                result["剩余天数"] = `${insuranceData.data.expireDays}天`;
-              }
-
-              if (insuranceData.data.price) {
-                result["延保价格"] = `${insuranceData.data.price}元`;
-              }
-
-              return result;
-            })()
-          : {}),
-      } as QueryData)
-    : undefined;
+  const mergedData = queryResult?.data;
 
   const hasResult = !!(mergedData && Object.keys(mergedData).length > 0);
 
@@ -175,17 +101,14 @@ export default function App() {
     if (queryCode && !isLoading) {
       if (isError) {
         setStatus(error instanceof Error ? error.message : "查询失败", "err");
-      } else if (!queryData) {
+      } else if (!queryResult) {
         setStatus("查询失败", "err");
       } else {
-        const ok = !!(queryData.data && Object.keys(queryData.data).length > 0);
-        setStatus(
-          ok ? "查询成功" : queryData.msg || "未找到数据",
-          ok ? "ok" : "err",
-        );
+        const ok = !!(queryResult.data && Object.keys(queryResult.data).length > 0);
+        setStatus(ok ? "查询成功" : "未找到数据", ok ? "ok" : "err");
       }
     }
-  }, [queryCode, queryData, isLoading, isError, error, setStatus]);
+  }, [queryCode, queryResult, isLoading, isError, error, setStatus]);
 
   const doQuery = useCallback(
     (code: string) => {

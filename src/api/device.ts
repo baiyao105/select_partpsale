@@ -5,15 +5,11 @@ import type { QueryData } from "../types";
 
 export async function queryDevice(
   code: string,
-): Promise<ApiResponse<QueryData> | null> {
-  try {
-    return await request<QueryData>({
-      url: CFG.API,
-      params: { queryParam: code },
-    });
-  } catch {
-    return null;
-  }
+): Promise<ApiResponse<QueryData>> {
+  return request<QueryData>({
+    url: CFG.API,
+    params: { queryParam: code },
+  });
 }
 
 export function extractBindNumber(text: string): string {
