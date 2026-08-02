@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
-    "@zxing/browser": "^0.2.1",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "webadb": "^1.0.1"
+    "webadb": "^1.0.1",
+    "zxing-wasm": "^3.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
