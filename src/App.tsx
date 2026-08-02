@@ -172,14 +172,20 @@ export default function App() {
       setStatus(error instanceof Error ? error.message : "查询失败", "err");
   }, [isError, error, setStatus]);
   useEffect(() => {
-    if (queryCode && queryData && !isLoading && !isError) {
-      const ok = !!(queryData.data && Object.keys(queryData.data).length > 0);
-      setStatus(
-        ok ? "查询成功" : queryData.msg || "未找到数据",
-        ok ? "ok" : "err",
-      );
+    if (queryCode && !isLoading) {
+      if (isError) {
+        setStatus(error instanceof Error ? error.message : "查询失败", "err");
+      } else if (!queryData) {
+        setStatus("查询失败", "err");
+      } else {
+        const ok = !!(queryData.data && Object.keys(queryData.data).length > 0);
+        setStatus(
+          ok ? "查询成功" : queryData.msg || "未找到数据",
+          ok ? "ok" : "err",
+        );
+      }
     }
-  }, [queryCode, queryData, isLoading, isError, setStatus]);
+  }, [queryCode, queryData, isLoading, isError, error, setStatus]);
 
   const doQuery = useCallback(
     (code: string) => {
