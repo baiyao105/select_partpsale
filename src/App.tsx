@@ -155,6 +155,18 @@ export default function App() {
     }
   }, [adbRead, setStatus, doQuery]);
 
+  const handleHistorySelect = useCallback(
+    (code: string) => {
+      setInput(code);
+      doQuery(code);
+    },
+    [doQuery],
+  );
+
+  const handleToggleHideEmpty = useCallback(() => setHideEmpty((h) => !h), []);
+
+  const handleSettingsClose = useCallback(() => setSettingsOpen(false), []);
+
   const handleScannerClose = useCallback(() => setScannerOpen(false), []);
 
   const handleCopy = useCallback(
@@ -217,10 +229,7 @@ export default function App() {
           />
           <HistoryPanel
             history={history}
-            onSelect={(code) => {
-              setInput(code);
-              doQuery(code);
-            }}
+            onSelect={handleHistorySelect}
             onRemove={removeHistory}
             onClearAll={clearHistory}
           />
@@ -236,7 +245,7 @@ export default function App() {
                 data={mergedData}
                 onCopy={handleCopy}
                 hideEmpty={hideEmpty}
-                onToggleHideEmpty={() => setHideEmpty(!hideEmpty)}
+                onToggleHideEmpty={handleToggleHideEmpty}
                 copyWithLabel={settings.copyWithLabel}
               />
             )}
@@ -250,7 +259,7 @@ export default function App() {
             data={mergedData}
             onCopy={handleCopy}
             hideEmpty={hideEmpty}
-            onToggleHideEmpty={() => setHideEmpty(!hideEmpty)}
+            onToggleHideEmpty={handleToggleHideEmpty}
             copyWithLabel={settings.copyWithLabel}
           />
         )}
@@ -265,7 +274,7 @@ export default function App() {
         open={settingsOpen}
         theme={theme}
         settings={settings}
-        onClose={() => setSettingsOpen(false)}
+        onClose={handleSettingsClose}
         onThemeChange={setTheme}
         onSettingsChange={setSettings}
       />

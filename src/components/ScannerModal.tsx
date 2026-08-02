@@ -18,8 +18,10 @@ export function ScannerModal({ open, onClose, onScan }: Props) {
   const [key, setKey] = useState(0);
   const onScanRef = useRef(onScan);
   const onCloseRef = useRef(onClose);
-  onScanRef.current = onScan;
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    onScanRef.current = onScan;
+    onCloseRef.current = onClose;
+  });
 
   const startWithTimeout = useCallback(() => {
     if (!videoRef.current) return () => {};
@@ -79,6 +81,15 @@ export function ScannerModal({ open, onClose, onScan }: Props) {
     }
   }, [open]);
 
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose],
+  );
+
+  const handleFileClick = useCallback(() => fileRef.current?.click(), []);
+
   const handleRetry = useCallback(() => {
     stopRef.current?.();
     setCamError(null);
@@ -107,9 +118,7 @@ export function ScannerModal({ open, onClose, onScan }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) onClose();
-          }}
+          onClick={handleBackdropClick}
         >
           <motion.div
             className="modal-box"
@@ -174,7 +183,7 @@ export function ScannerModal({ open, onClose, onScan }: Props) {
               />
               <button
                 className="scanner-foot-btn"
-                onClick={() => fileRef.current?.click()}
+                onClick={handleFileClick}
               >
                 <ImageUp size={15} />
                 选择本地图片

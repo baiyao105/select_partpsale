@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 const STORAGE_KEY = "serial_query_history";
 const COOKIE_KEY = "serial_query_history";
@@ -44,23 +44,21 @@ export function useHistory() {
     if (!code.trim()) return;
     setHistoryState((prev) => {
       const next = [code, ...prev.filter((c) => c !== code)].slice(0, MAX);
-      setHistory(next);
       return next;
     });
   }, []);
 
   const remove = useCallback((code: string) => {
-    setHistoryState((prev) => {
-      const next = prev.filter((c) => c !== code);
-      setHistory(next);
-      return next;
-    });
+    setHistoryState((prev) => prev.filter((c) => c !== code));
   }, []);
 
   const clearAll = useCallback(() => {
     setHistoryState([]);
-    setHistory([]);
   }, []);
+
+  useEffect(() => {
+    setHistory(history);
+  }, [history]);
 
   return { history, add, remove, clearAll };
 }
