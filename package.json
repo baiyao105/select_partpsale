@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
+    "@zxing/browser": "^0.2.1",
     "framer-motion": "^12.42.2",
-    "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

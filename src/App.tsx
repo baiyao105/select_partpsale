@@ -142,10 +142,6 @@ export default function App() {
     },
     [doQuery],
   );
-  const handleScanError = useCallback(
-    (msg: string) => setStatus("摄像头错误: " + msg, "err"),
-    [setStatus],
-  );
 
   const handleADB = useCallback(async () => {
     setStatus("等待选择ADB设备", "info");
@@ -158,6 +154,8 @@ export default function App() {
       setStatusVisible(false);
     }
   }, [adbRead, setStatus, doQuery]);
+
+  const handleScannerClose = useCallback(() => setScannerOpen(false), []);
 
   const handleCopy = useCallback(
     (text: string) => {
@@ -260,9 +258,8 @@ export default function App() {
       <Toast message={toastMsg} type={toastType} onDone={clearToast} />
       <ScannerModal
         open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
+        onClose={handleScannerClose}
         onScan={handleScanResult}
-        onError={handleScanError}
       />
       <SettingsDialog
         open={settingsOpen}

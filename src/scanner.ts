@@ -1,37 +1,47 @@
+import { BrowserQRCodeReader } from "@zxing/browser";
+
 export async function startScanner(
-  elementId: string,
+  videoElement: HTMLVideoElement,
   onScan: (text: string) => void,
-  _onError: (err: string) => void,
-): Promise<{ stop: () => Promise<void> }> {
-  const { Html5Qrcode } = await import("html5-qrcode");
-  const reader = new Html5Qrcode(elementId);
-  await reader.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 250, height: 250 } },
-    onScan,
-    () => {},
-  );
-  return {
-    stop: async () => {
-      try {
-        if (reader.isScanning) await reader.stop();
-      } catch {
-        /* ignore */
+): Promise<{ stop: () => void }> {
+  const reader = new BrowserQRCodeReader();
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: "environment",
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+    },
+  });
+
+  videoElement.srcObject = stream;
+
+  const controls = await reader.decodeFromVideoElement(
+    videoElement,
+    (result) => {
+      if (result) {
+        onScan(result.getText());
       }
+    },
+  );
+
+  return {
+    stop: () => {
+      controls?.stop();
+      stream.getTracks().forEach((t) => t.stop());
+      videoElement.srcObject = null;
     },
   };
 }
 
-export async function scanFile(file: File): Promise<string> {
-  const { Html5Qrcode } = await import("html5-qrcode");
-  const el = document.createElement("div");
-  el.id = "_qr_tmp_" + Date.now();
-  el.style.display = "none";
-  document.body.appendChild(el);
+export async function decodeImage(file: File): Promise<string> {
+  const reader = new BrowserQRCodeReader();
+  const url = URL.createObjectURL(file);
   try {
-    const reader = new Html5Qrcode(el.id);
-    return await reader.scanFile(file, false);
+    const result = await reader.decodeFromImageUrl(url);
+    if (result) return result.getText();
+    throw new Error("未识别到二维码");
   } finally {
-    document.body.removeChild(el);
+    URL.revokeObjectURL(url);
   }
 }

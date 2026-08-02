@@ -1,66 +1,42 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ImageUp, AlertCircle, RotateCcw } from "lucide-react";
-import { startScanner, scanFile } from "../scanner";
+import { startScanner, decodeImage } from "../scanner";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onScan: (text: string) => void;
-  onError: (msg: string) => void;
 }
 
-export function ScannerModal({ open, onClose, onScan, onError }: Props) {
-  const readerRef = useRef<HTMLDivElement>(null);
-  const stopRef = useRef<(() => Promise<void>) | null>(null);
+export function ScannerModal({ open, onClose, onScan }: Props) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const stopRef = useRef<(() => void) | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [camError, setCamError] = useState<string | null>(null);
   const [camReady, setCamReady] = useState(false);
+  const [key, setKey] = useState(0);
+  const onScanRef = useRef(onScan);
+  const onCloseRef = useRef(onClose);
+  onScanRef.current = onScan;
+  onCloseRef.current = onClose;
 
-  const reset = useCallback(() => {
-    setCamError(null);
-    setCamReady(false);
-  }, []);
-
-  function startWithTimeout() {
-    if (!readerRef.current) return () => {};
-    const id = "qr-reader";
-    readerRef.current.id = id;
-
+  const startWithTimeout = useCallback(() => {
+    if (!videoRef.current) return () => {};
     let cancelled = false;
     const timer = setTimeout(() => {
       cancelled = true;
       setCamError("摄像头启动超时");
     }, 7000);
 
-    navigator.permissions
-      .query({ name: "camera" as PermissionName })
-      .then((r) => {
-        if (r.state === "denied" && !cancelled) {
-          clearTimeout(timer);
-          cancelled = true;
-          setCamError("摄像头权限被拒绝");
-        }
-      })
-      .catch(() => {});
-
-    startScanner(
-      id,
-      (text) => {
-        if (!cancelled) {
-          clearTimeout(timer);
-          stopRef.current?.();
-          onScan(text);
-          onClose();
-        }
-      },
-      (msg) => {
-        if (!cancelled) {
-          clearTimeout(timer);
-          setCamError(msg);
-        }
-      },
-    )
+    startScanner(videoRef.current, (text) => {
+      if (!cancelled) {
+        clearTimeout(timer);
+        stopRef.current?.();
+        onScanRef.current(text);
+        onCloseRef.current();
+      }
+    })
       .then((s) => {
         if (!cancelled) {
           clearTimeout(timer);
@@ -71,7 +47,12 @@ export function ScannerModal({ open, onClose, onScan, onError }: Props) {
       .catch((err) => {
         if (!cancelled) {
           clearTimeout(timer);
-          setCamError(err.message);
+          const msg = err instanceof Error ? err.message : String(err);
+          if (msg.includes("Permission")) {
+            setCamError("摄像头权限被拒绝");
+          } else {
+            setCamError(msg);
+          }
         }
       });
 
@@ -79,33 +60,42 @@ export function ScannerModal({ open, onClose, onScan, onError }: Props) {
       clearTimeout(timer);
       cancelled = true;
       stopRef.current?.();
+      const s = videoRef.current?.srcObject as MediaStream | null;
+      s?.getTracks().forEach((t) => t.stop());
+      if (videoRef.current) videoRef.current.srcObject = null;
     };
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const stop = startWithTimeout();
+    return stop;
+  }, [open, key, startWithTimeout]);
 
   useEffect(() => {
     if (!open) {
-      reset();
-      return;
+      setCamError(null);
+      setCamReady(false);
     }
-    const stop = startWithTimeout();
-    return stop;
-  }, [open, onScan, onClose, reset]);
+  }, [open]);
 
-  function retry() {
-    reset();
+  const handleRetry = useCallback(() => {
     stopRef.current?.();
-    setTimeout(() => startWithTimeout(), 50);
-  }
+    setCamError(null);
+    setCamReady(false);
+    setKey((k) => k + 1);
+  }, []);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const text = await scanFile(file);
+      const text = await decodeImage(file);
       onScan(text);
       onClose();
-    } catch (err: any) {
-      onError("图片解码失败: " + (err.message || err));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      window.alert("图片解码失败: " + msg);
     }
   }
 
@@ -137,8 +127,26 @@ export function ScannerModal({ open, onClose, onScan, onError }: Props) {
 
             <div className="scanner-view">
               <div className="scanner-frame">
+                <div className="scan-region">
+                  <div className="scan-corner scan-tl-h" />
+                  <div className="scan-corner scan-tl-v" />
+                  <div className="scan-corner scan-tr-h" />
+                  <div className="scan-corner scan-tr-v" />
+                  <div className="scan-corner scan-bl-h" />
+                  <div className="scan-corner scan-bl-v" />
+                  <div className="scan-corner scan-br-h" />
+                  <div className="scan-corner scan-br-v" />
+                </div>
+                <div className="scan-shading" />
                 <div className="scanner-hint">将二维码放入框内</div>
-                <div ref={readerRef} id="qr-reader" className="scanner-video" />
+                <video
+                  ref={videoRef}
+                  className="scanner-video"
+                  playsInline
+                  muted
+                  disablePictureInPicture
+                  disableRemotePlayback
+                />
 
                 {!camReady && !camError && (
                   <div className="scanner-overlay">
@@ -174,7 +182,7 @@ export function ScannerModal({ open, onClose, onScan, onError }: Props) {
               {camError && (
                 <button
                   className="scanner-foot-btn scanner-foot-btn-retry"
-                  onClick={retry}
+                  onClick={handleRetry}
                 >
                   <RotateCcw size={15} />
                   重试
