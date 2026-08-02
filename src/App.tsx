@@ -94,10 +94,6 @@ export default function App() {
     if (adbError) setStatus(adbError, "err");
   }, [adbError, setStatus]);
   useEffect(() => {
-    if (isError)
-      setStatus(error instanceof Error ? error.message : "查询失败", "err");
-  }, [isError, error, setStatus]);
-  useEffect(() => {
     if (queryCode && !isLoading) {
       if (isError) {
         setStatus(error instanceof Error ? error.message : "查询失败", "err");
@@ -105,7 +101,13 @@ export default function App() {
         setStatus("查询失败", "err");
       } else {
         const ok = !!(queryResult.data && Object.keys(queryResult.data).length > 0);
-        setStatus(ok ? "查询成功" : "未找到数据", ok ? "ok" : "err");
+        let msg = ok ? "查询成功" : "未找到数据";
+        let type: "ok" | "err" = ok ? "ok" : "err";
+        if (ok && queryResult.insuranceNotSupported) {
+          msg = "查询成功（该条码不支持碎屏保）";
+          type = "ok";
+        }
+        setStatus(msg, type);
       }
     }
   }, [queryCode, queryResult, isLoading, isError, error, setStatus]);

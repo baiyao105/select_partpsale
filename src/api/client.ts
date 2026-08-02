@@ -45,7 +45,13 @@ export async function request<T>(
     });
 
     if (!resp.ok) {
-      throw new Error(HTTP_ERRORS[resp.status] || `HTTP ${resp.status}`);
+      let body: { desc?: string; msg?: string } | null = null;
+      try {
+        body = await resp.json();
+      } catch {}
+      throw new Error(
+        body?.desc || body?.msg || HTTP_ERRORS[resp.status] || `HTTP ${resp.status}`,
+      );
     }
 
     try {

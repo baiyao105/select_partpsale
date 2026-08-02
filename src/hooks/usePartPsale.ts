@@ -6,8 +6,7 @@ import type { QueryData } from "../types";
 
 interface QueryResult {
   data: QueryData | undefined;
-  rawDevice: Awaited<ReturnType<typeof queryDevice>> | undefined;
-  rawInsurance: Awaited<ReturnType<typeof queryInsurance>> | null | undefined;
+  insuranceNotSupported: boolean;
 }
 
 export function usePartPsale(code: string | null) {
@@ -19,17 +18,16 @@ export function usePartPsale(code: string | null) {
         queryInsurance(code!),
       ]);
 
-      const deviceData =
-        deviceRes.status === "fulfilled" ? deviceRes.value?.data : undefined;
-      const insuranceData =
+      if (deviceRes.status === "rejected") {
+        throw deviceRes.reason;
+      }
+
+      const insurance =
         insuranceRes.status === "fulfilled" ? insuranceRes.value : null;
 
       return {
-        data: mergeData(deviceData, insuranceData),
-        rawDevice:
-          deviceRes.status === "fulfilled" ? deviceRes.value : undefined,
-        rawInsurance:
-          insuranceRes.status === "fulfilled" ? insuranceRes.value : null,
+        data: mergeData(deviceRes.value, insurance),
+        insuranceNotSupported: !!insurance?.notSupported,
       };
     },
     enabled: !!code,

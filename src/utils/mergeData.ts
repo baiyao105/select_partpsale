@@ -1,5 +1,5 @@
 import type { QueryData } from "../types";
-import type { InsuranceResponse } from "../types";
+import type { InsuranceResult } from "../api/insurance";
 
 const INS_STATUS: Record<string, string> = {
   AVAILABLE: "有效",
@@ -14,13 +14,12 @@ const BUY_STATUS: Record<string, string> = {
 
 export function mergeData(
   deviceData: QueryData | undefined,
-  insuranceRes: InsuranceResponse | null | undefined,
+  insurance: InsuranceResult | null,
 ): QueryData | undefined {
   if (!deviceData) return undefined;
 
   const merged: QueryData = { ...deviceData };
-
-  const ins = insuranceRes?.data;
+  const ins = insurance?.data;
   if (!ins) return merged;
 
   const dto = ins.insuranceDTO;
@@ -42,7 +41,7 @@ export function mergeData(
     merged["购买状态"] = BUY_STATUS[ins.buyStatus] || ins.buyStatus;
   }
   if (dto?.insuranceStatus) {
-    merged["保险状态"] = INS_STATUS[dto.insuranceStatus] || dto.insuranceStatus;
+    merged["保修状态"] = INS_STATUS[dto.insuranceStatus] || dto.insuranceStatus;
   }
   if (dto?.activityName) merged["活动名称"] = dto.activityName;
   if (ins.expireDays && ins.expireDays > 0) {
