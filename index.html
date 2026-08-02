@@ -22,6 +22,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function() {
+        var path = location.pathname;
+        var m = path.match(/^\/[^/]+\/([^/]+)\/?$/);
+        if (m && m[1]) window.__BARCODE__ = decodeURIComponent(m[1]);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

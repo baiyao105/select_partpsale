@@ -40,6 +40,26 @@ export default function App() {
     clearAll: clearHistory,
   } = useHistory();
 
+  useEffect(() => {
+    const bc = (window as unknown as Record<string, unknown>).__BARCODE__;
+    if (typeof bc === "string" && bc) {
+      setInput(bc);
+      setQueryCode(bc);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      const path = location.pathname.replace(/\/+$/, "");
+      const m = path.match(/^\/[^/]+\/([^/]+)\/?$/);
+      const bc = m ? decodeURIComponent(m[1]) : "";
+      setInput(bc);
+      setQueryCode(bc || null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const {
     data: queryData,
     isLoading,
@@ -152,14 +172,14 @@ export default function App() {
       setStatus(error instanceof Error ? error.message : "查询失败", "err");
   }, [isError, error, setStatus]);
   useEffect(() => {
-    if (queryData && !isLoading && !isError) {
+    if (queryCode && queryData && !isLoading && !isError) {
       const ok = !!(queryData.data && Object.keys(queryData.data).length > 0);
       setStatus(
         ok ? "查询成功" : queryData.msg || "未找到数据",
         ok ? "ok" : "err",
       );
     }
-  }, [queryData, isLoading, isError, setStatus]);
+  }, [queryCode, queryData, isLoading, isError, setStatus]);
 
   const doQuery = useCallback(
     (code: string) => {
@@ -169,6 +189,7 @@ export default function App() {
       }
       setQueryCode(code.trim());
       if (code.trim()) addHistory(code.trim());
+      window.history.pushState(null, "", `/select_partpsale/${code.trim()}`);
     },
     [setStatus, addHistory],
   );
@@ -177,6 +198,9 @@ export default function App() {
     setInput("");
     setQueryCode(null);
     setStatusVisible(false);
+    setStatusText("");
+    setStatusType("info");
+    window.history.pushState(null, "", "/select_partpsale/");
   }, []);
 
   const handleScanResult = useCallback(
