@@ -50,7 +50,10 @@ export async function request<T>(
         body = await resp.json();
       } catch {}
       throw new Error(
-        body?.desc || body?.msg || HTTP_ERRORS[resp.status] || `HTTP ${resp.status}`,
+        body?.desc ||
+          body?.msg ||
+          HTTP_ERRORS[resp.status] ||
+          `HTTP ${resp.status}`,
       );
     }
 

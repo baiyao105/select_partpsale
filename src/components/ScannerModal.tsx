@@ -181,10 +181,7 @@ export function ScannerModal({ open, onClose, onScan }: Props) {
                 style={{ display: "none" }}
                 onChange={handleFile}
               />
-              <button
-                className="scanner-foot-btn"
-                onClick={handleFileClick}
-              >
+              <button className="scanner-foot-btn" onClick={handleFileClick}>
                 <ImageUp size={15} />
                 选择本地图片
               </button>

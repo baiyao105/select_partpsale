@@ -17,7 +17,7 @@
   --transition-theme:
     background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
     box-shadow 0.3s ease;
-  --accent: #8451C9;
+  --accent: #8451c9;
   --accent-foreground: var(--snow);
   --accent-hover: #7346b3;
   --accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
@@ -30,7 +30,7 @@
   --danger: #dc2626;
   --danger-foreground: var(--snow);
   --danger-soft: rgba(220, 38, 38, 0.1);
-  --default: #E6E3EC;
+  --default: #e6e3ec;
   --default-foreground: var(--eclipse);
   --foreground: var(--eclipse);
   --muted: #8d8d8d;
@@ -38,9 +38,17 @@
   --segment: var(--white);
   --overlay: var(--white);
   --link: var(--foreground);
-  --background: #F1EEF7;
-  --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
-  --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  --background: #f1eef7;
+  --background-secondary: color-mix(
+    in oklab,
+    var(--background) 96%,
+    var(--foreground) 4%
+  );
+  --background-tertiary: color-mix(
+    in oklab,
+    var(--background) 92%,
+    var(--foreground) 8%
+  );
   --background-inverse: var(--foreground);
   --surface: var(--white);
   --surface-foreground: var(--foreground);
@@ -61,13 +69,14 @@
   --surface-shadow:
     0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
     0 0 1px 0 rgba(0, 0, 0, 0.06);
-  --overlay-shadow: 0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+  --overlay-shadow:
+    0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --accent: #9B71E0;
+    --accent: #9b71e0;
     --accent-foreground: var(--snow);
     --accent-hover: #8a60cc;
     --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
@@ -80,7 +89,7 @@
     --danger: #ef4444;
     --danger-foreground: var(--snow);
     --danger-soft: rgba(239, 68, 68, 0.15);
-    --default: #25222C;
+    --default: #25222c;
     --default-foreground: var(--snow);
     --foreground: var(--snow);
     --muted: #b3b3b3;
@@ -88,8 +97,8 @@
     --segment: #666666;
     --overlay: #383838;
     --link: var(--foreground);
-    --background: #0F0B15;
-    --surface: #25222C;
+    --background: #0f0b15;
+    --surface: #25222c;
     --surface-foreground: var(--foreground);
     --surface-secondary: #2d2a33;
     --surface-tertiary: #353240;
@@ -111,7 +120,7 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --accent: #9B71E0;
+  --accent: #9b71e0;
   --accent-foreground: var(--snow);
   --accent-hover: #8a60cc;
   --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
@@ -124,7 +133,7 @@
   --danger: #ef4444;
   --danger-foreground: var(--snow);
   --danger-soft: rgba(239, 68, 68, 0.15);
-  --default: #25222C;
+  --default: #25222c;
   --default-foreground: var(--snow);
   --foreground: var(--snow);
   --muted: #b3b3b3;
@@ -132,8 +141,8 @@
   --segment: #666666;
   --overlay: #383838;
   --link: var(--foreground);
-  --background: #0F0B15;
-  --surface: #25222C;
+  --background: #0f0b15;
+  --surface: #25222c;
   --surface-foreground: var(--foreground);
   --surface-secondary: #2d2a33;
   --surface-tertiary: #353240;
@@ -807,8 +816,6 @@ body {
   border: 1px solid color-mix(in oklab, var(--danger) 15%, transparent);
 }
 
-
-
 .results.on {
   border-top: 1px solid var(--border-soft);
   padding-top: 16px;
@@ -1293,14 +1300,62 @@ body {
   position: absolute;
   background-color: var(--accent);
 }
-.scan-tl-h { top: -5px; left: -5px; width: 40px; height: 5px; border-radius: 20px 0 0 0; }
-.scan-tl-v { top: -5px; left: -5px; width: 5px; height: 45px; border-radius: 20px 0 0 0; }
-.scan-tr-h { top: -5px; right: -5px; width: 40px; height: 5px; border-radius: 0 20px 0 0; }
-.scan-tr-v { top: -5px; right: -5px; width: 5px; height: 45px; border-radius: 0 20px 0 0; }
-.scan-bl-h { bottom: -5px; left: -5px; width: 40px; height: 5px; border-radius: 0 0 0 20px; }
-.scan-bl-v { bottom: -5px; left: -5px; width: 5px; height: 45px; border-radius: 0 0 0 20px; }
-.scan-br-h { bottom: -5px; right: -5px; width: 40px; height: 5px; border-radius: 0 0 20px 0; }
-.scan-br-v { bottom: -5px; right: -5px; width: 5px; height: 45px; border-radius: 0 0 20px 0; }
+.scan-tl-h {
+  top: -5px;
+  left: -5px;
+  width: 40px;
+  height: 5px;
+  border-radius: 20px 0 0 0;
+}
+.scan-tl-v {
+  top: -5px;
+  left: -5px;
+  width: 5px;
+  height: 45px;
+  border-radius: 20px 0 0 0;
+}
+.scan-tr-h {
+  top: -5px;
+  right: -5px;
+  width: 40px;
+  height: 5px;
+  border-radius: 0 20px 0 0;
+}
+.scan-tr-v {
+  top: -5px;
+  right: -5px;
+  width: 5px;
+  height: 45px;
+  border-radius: 0 20px 0 0;
+}
+.scan-bl-h {
+  bottom: -5px;
+  left: -5px;
+  width: 40px;
+  height: 5px;
+  border-radius: 0 0 0 20px;
+}
+.scan-bl-v {
+  bottom: -5px;
+  left: -5px;
+  width: 5px;
+  height: 45px;
+  border-radius: 0 0 0 20px;
+}
+.scan-br-h {
+  bottom: -5px;
+  right: -5px;
+  width: 40px;
+  height: 5px;
+  border-radius: 0 0 20px 0;
+}
+.scan-br-v {
+  bottom: -5px;
+  right: -5px;
+  width: 5px;
+  height: 45px;
+  border-radius: 0 0 20px 0;
+}
 
 .scan-shading {
   position: absolute;
@@ -1317,7 +1372,9 @@ body {
   border-bottom: 50px solid rgba(0, 0, 0, 0.48);
 }
 
-.scanner-mask { display: none; }
+.scanner-mask {
+  display: none;
+}
 
 .scanner-video {
   width: 100%;

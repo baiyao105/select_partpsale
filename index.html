@@ -23,7 +23,7 @@
   <body>
     <div id="root"></div>
     <script>
-      (function() {
+      (function () {
         var path = location.pathname;
         var m = path.match(/^\/[^/]+\/([^/]+)\/?$/);
         if (m && m[1]) window.__BARCODE__ = decodeURIComponent(m[1]);

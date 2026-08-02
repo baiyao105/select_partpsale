@@ -18,7 +18,11 @@ export async function queryInsurance(sn: string): Promise<InsuranceResult> {
     const res = (await request({
       url: CFG.INSURANCE_API,
       params: { productSn: sn, serviceType: "EXTEND" },
-    })) as unknown as { code: string; data: InsuranceData | null; desc: string };
+    })) as unknown as {
+      code: string;
+      data: InsuranceData | null;
+      desc: string;
+    };
 
     if (String(res.code) === "000001" && res.data) {
       return { data: res.data };

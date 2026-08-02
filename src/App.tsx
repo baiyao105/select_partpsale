@@ -100,7 +100,9 @@ export default function App() {
       } else if (!queryResult) {
         setStatus("查询失败", "err");
       } else {
-        const ok = !!(queryResult.data && Object.keys(queryResult.data).length > 0);
+        const ok = !!(
+          queryResult.data && Object.keys(queryResult.data).length > 0
+        );
         let msg = ok ? "查询成功" : "未找到数据";
         let type: "ok" | "err" = ok ? "ok" : "err";
         if (ok && queryResult.insuranceNotSupported) {
